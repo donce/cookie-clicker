@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cookie_clicker',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -47,9 +48,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'coockie_clicker.urls'
+ROOT_URLCONF = 'cookie_clicker.urls'
 
-WSGI_APPLICATION = 'coockie_clicker.wsgi.application'
+WSGI_APPLICATION = 'cookie_clicker.wsgi.application'
 
 
 # Database
@@ -80,3 +81,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+TEMPLATE_DIRS = (
+    'cookie_clicker/templates',
+)
