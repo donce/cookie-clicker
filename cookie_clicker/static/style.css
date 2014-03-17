@@ -1,3 +1,14 @@
+body {
+    background-color: black;
+}
+
 #cookie {
 	cursor: pointer;
+}
+
+.friend_item {
+    position: absolute;
+    /*border-color: blue;*/
+    /*color: green;*/
+    /*background-color: red;*/
 }
