@@ -5,6 +5,9 @@ image_size = 50;
 fish_image = new Image();
 fish_image.src = "/static/fish.png";
 
+profile_image_x = 165;
+profile_image_y = 85;
+
 function getFriends() {
 	FB.api('me/friends?fields=picture,name', function(response) {
 		response.data.forEach(createFriend);
@@ -83,9 +86,10 @@ function Aquarium() {
 		aquarium.drawBackground();
 		all_friends.forEach(function(friend) {
 			friend.move();
-			ctx.drawImage(friend.bitmap, friend.px, friend.py);
+			ctx.drawImage(fish_image, friend.px, friend.py);
+
+			ctx.drawImage(friend.bitmap, friend.px + profile_image_x, friend.py + profile_image_y);
 		});
-		ctx.drawImage(fish_image, 0, 0);
 	}
 
 }
