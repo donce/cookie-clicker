@@ -1,5 +1,10 @@
 image_size = 50;
 
+
+//TODO: wait for loading
+fish_image = new Image();
+fish_image.src = "/static/fish.png";
+
 function getFriends() {
 	FB.api('me/friends?fields=picture,name', function(response) {
 		response.data.forEach(createFriend);
@@ -9,21 +14,12 @@ function getFriends() {
 
 function moveInterval(current, add, end) {
 	if (add > 0) {
-		if (current + add > end) {
-//            paeis iki galo: end - current
-//            liks eiti: add - (end - current)
-//            pozicija: end - (add - (end - current))
-//            paprastai: 2*end - add - current
+		if (current + add > end)
 			return [2*end - add - current, true];
-		}
 	}
 	if (add < 0) {
-		if (current + add < 0) {
-//            paeis iki galo: current
-//            liks eiti: - add - current
-//            pozicija: - add - current
+		if (current + add < 0)
 			return [-add - current, true];
-		}
 	}
 	return [current + add, false];
 }
@@ -33,6 +29,7 @@ function Friend(data) {
 	this.name = data.name;
 	this.image = data.picture.data.url;
 
+	//TODO: wait for loading
 	this.bitmap = new Image();
 	this.bitmap.src = this.image;
 
@@ -49,9 +46,7 @@ function Friend(data) {
 		this.py = height / 2;
 	}
 
-
 	this.move = function() {
-		this.ima
 		var result = moveInterval(this.px, this.mx, width-image_size);
 		this.px = result[0];
 		if (result[1])
@@ -90,6 +85,7 @@ function Aquarium() {
 			friend.move();
 			ctx.drawImage(friend.bitmap, friend.px, friend.py);
 		});
+		ctx.drawImage(fish_image, 0, 0);
 	}
 
 }
@@ -97,25 +93,22 @@ function Aquarium() {
 aquarium = new Aquarium();
 
 $(window).load(function() {
-	window.fbAsyncInit = function() {
-		FB.init({
-			appId      : '189451487932004',
-			status     : true, // check login status
-			cookie     : true, // enable cookies to allow the server to access the session
-			xfbml      : true  // parse XFBML
-		});
-
-		FB.Event.subscribe('auth.authResponseChange', function(response) {
-			console.log("status changed to ", response.status);
-			if (response.status === 'connected') {
-				getFriends();
-			} else if (response.status === 'not_authorized') {
-				FB.login();
-			} else {
-				FB.login();
-			}
-		});
-	};
+	FB.Event.subscribe('auth.authResponseChange', function(response) {
+		console.log("status changed to ", response.status);
+		if (response.status === 'connected') {
+			getFriends();
+		} else if (response.status === 'not_authorized') {
+			FB.login();
+		} else {
+			FB.login();
+		}
+	});
+	FB.init({
+		appId: '189451487932004',
+		status: true, // check login status
+		cookie: true, // enable cookies to allow the server to access the session
+		xfbml: true // parse XFBML
+	});
 	aquarium.init();
 });
 
