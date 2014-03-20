@@ -1,51 +1,24 @@
 {% load static %}
 <html>
 <head>
-    <title>Cookie clicker</title>
+    <title>Facebook Aquarium</title>
 	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
     <script type="text/javascript" src="{% static 'jquery-1.10.2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'script.js' %}"></script>
 </head>
 <body>
 <div id="fb-root"></div>
-<script>
-  window.fbAsyncInit = function() {
-  FB.init({
-    appId      : '189451487932004',
-    status     : true, // check login status
-    cookie     : true, // enable cookies to allow the server to access the session
-    xfbml      : true  // parse XFBML
-  });
-
-  FB.Event.subscribe('auth.authResponseChange', function(response) {
-    console.log("status changed to ", response.status);
-    if (response.status === 'connected') {
-      testAPI();
-    } else if (response.status === 'not_authorized') {
-      // In this case, the person is logged into Facebook, but not into the app, so we call
-      // FB.login() to prompt them to do so. 
-      // In real-life usage, you wouldn't want to immediately prompt someone to login 
-      // like this, for two reasons:
-      // (1) JavaScript created popup windows are blocked by most browsers unless they 
-      // result from direct interaction from people using the app (such as a mouse click)
-      // (2) it is a bad experience to be continually prompted to login upon page load.
-      FB.login();
-    } else {
-      // In this case, the person is not logged into Facebook, so we call the login() 
-      // function to prompt them to do so. Note that at this stage there is no indication
-      // of whether they are logged into the app. If they aren't then they'll see the Login
-      // dialog right after they log in to Facebook. 
-      // The same caveats as above apply to the FB.login() call here.
-      FB.login();
-    }
-  });
-  };
-
-
-all_friends = [];
+<script type="text/javascript">
 
 
 image_size = 50;
+
+function getFriends() {
+    FB.api('me/friends?fields=picture,name', function(response) {
+        response.data.forEach(createFriend);
+        setInterval(aquarium.update, 1);
+    });
+}
 
 function moveInterval(current, add, end) {
     if (add > 0) {
@@ -59,20 +32,17 @@ function moveInterval(current, add, end) {
     }
     if (add < 0) {
         if (current + add < 0) {
-
 {#            paeis iki galo: current#}
 {#            liks eiti: - add - current#}
 {#            pozicija: - add - current#}
-
             return [-add - current, true];
         }
     }
     return [current + add, false];
 }
 
-width = $('body').width();
-{#height = $('body').height();#}
-height = 250;
+{#width = 1500;#}
+{#height = 800;#}
 
 function Friend(data) {
     console.log('creating friend');
@@ -84,6 +54,7 @@ function Friend(data) {
     this.bitmap.src = this.image;
 
     this.item = $('<span class="friend_item"><img src="' + this.image + '"/></span>');
+    this.item = "a";
 
     if (false) {
         this.mx = Math.random() * 20;
@@ -94,29 +65,97 @@ function Friend(data) {
         var speed = 3;//Math.random() * 5;
         this.mx = Math.cos(angle)*speed;
         this.my = Math.sin(angle)*speed;
-        this.item.offset({left: width/2, top: height/2});
+        this.px = width / 2;
+        this.py = height / 2;
+{#        this.item.offset({left: width/2, top: height/2});#}
     }
 
 
     this.move = function() {
+        this.ima
 {#        console.log($(window).width());#}
-        var offset = this.item.offset();
+{#        var offset = this.item.offset();#}
 {#        if (this.mx > 0)#}
 {#        offset.left += this.mx;#}
-        var result = moveInterval(offset.left, this.mx, width-image_size);
-        offset.left = result[0];
+        var result = moveInterval(this.px, this.mx, width-image_size);
+        this.px = result[0];
         if (result[1])
             this.mx *= -1;
 
-        var result = moveInterval(offset.top, this.my, height-image_size);
-        offset.top = result[0];
+        var result = moveInterval(this.py, this.my, height-image_size);
+        this.py = result[0];
         if (result[1])
             this.my *= -1;
 
 {#        offset.top += this.my;#}
-        this.item.offset(offset);
+{#        this.item.offset({left: this.px, top: this.py});#}
     }
 }
+
+function Aquarium() {
+    all_friends = [];
+
+    this.init = function() {
+        console.log("initing");
+        width = $(document).width();
+        height = $(document).height();
+{#        container = $("#container")[0];#}
+        canvas = $("#canvas")[0];
+        ctx = canvas.getContext("2d");
+        console.log("Setting size to ", width, height);
+{#        canvas.style.width = width;#}
+{#        canvas.style.height = height;#}
+        ctx.canvas.width = width;
+        ctx.canvas.height = height;
+    }
+
+    this.update = function() {
+        console.log("update")
+        this.all_friends.forEach(function(friend) {
+            friend.move();
+            ctx.drawImage(friend.bitmap, friend.px, friend.py);
+        });
+    }
+
+}
+
+aquarium = new Aquarium();
+$(window).load(function() {
+
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '189451487932004',
+    status     : true, // check login status
+    cookie     : true, // enable cookies to allow the server to access the session
+    xfbml      : true  // parse XFBML
+  });
+
+  FB.Event.subscribe('auth.authResponseChange', function(response) {
+    console.log("status changed to ", response.status);
+    if (response.status === 'connected') {
+{#      testAPI();#}
+        getFriends();
+    } else if (response.status === 'not_authorized') {
+      // In this case, the person is logged into Facebook, but not into the app, so we call
+      // FB.login() to prompt them to do so.
+      // In real-life usage, you wouldn't want to immediately prompt someone to login
+      // like this, for two reasons:
+      // (1) JavaScript created popup windows are blocked by most browsers unless they
+      // result from direct interaction from people using the app (such as a mouse click)
+      // (2) it is a bad experience to be continually prompted to login upon page load.
+      FB.login();
+    } else {
+      // In this case, the person is not logged into Facebook, so we call the login()
+      // function to prompt them to do so. Note that at this stage there is no indication
+      // of whether they are logged into the app. If they aren't then they'll see the Login
+      // dialog right after they log in to Facebook.
+      // The same caveats as above apply to the FB.login() call here.
+      FB.login();
+    }
+  });
+  };
+    aquarium.init();
+});
 
 current = 0;
 
@@ -135,6 +174,7 @@ function createFriend(data) {
    ref.parentNode.insertBefore(js, ref);
   }(document));
 
+/*
   function testAPI() {
     FB.api('/me', function(response) {
       console.log('Good to see you, ' + response.name + '.');
@@ -143,28 +183,22 @@ function createFriend(data) {
 
     FB.api('me/friends?fields=picture,name', function(response) {
         response.data.forEach(createFriend);
-        setInterval(update, 1000);
+        setInterval(aquarium.update, 1);
     });
   }
-    function update() {
-        var canvas = $("#canvas")[0];
-        var ctx = canvas.getContext("2d");
-        console.log(canvas);
-        all_friends.forEach(function(friend) {
-            friend.move();
-            ctx.drawImage(friend.bitmap, friend.mx, friend.my);
-        });
-    }
+*/
 </script>
 
 <!--
   Below we include the Login Button social plugin. This button uses the JavaScript SDK to
   present a graphical Login button that triggers the FB.login() function when clicked. -->
-
+<!--
 <fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
-
+-->
+<!--
 <div id="friends_list" height="250px"></div>
-<canvas id="canvas" height="250px"></canvas>
-
+<div id="container" width="100%" height="100%">
+-->
+    <canvas id="canvas"></canvas>
 </body>
 </html>
