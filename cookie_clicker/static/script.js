@@ -1,9 +1,17 @@
 image_size = 50;
 
 
-//TODO: wait for loading
-fish_image = new Image();
-fish_image.src = "/static/fish.png";
+//TODO: wait for loading until drawing
+fish_image_left = new Image();
+fish_image_left.onload = function() {
+	fish_image_right = document.createElement("canvas");
+	fish_image_right.width = fish_image_left.width;
+	fish_image_right.height = fish_image_left.height;
+	var ctx = fish_image_right.getContext("2d");
+	ctx.scale(-1, 1);
+	ctx.drawImage(fish_image_left, -fish_image_left.width, 0);
+};
+fish_image_left.src = "/static/fish.png";
 
 profile_image_x = 165;
 profile_image_y = 85;
@@ -86,9 +94,18 @@ function Aquarium() {
 		aquarium.drawBackground();
 		all_friends.forEach(function(friend) {
 			friend.move();
-			ctx.drawImage(fish_image, friend.px, friend.py);
-
-			ctx.drawImage(friend.bitmap, friend.px + profile_image_x, friend.py + profile_image_y);
+			var img_x, img_y;
+			if (friend.mx < 0) {
+				ctx.drawImage(fish_image_left, friend.px, friend.py);
+				img_x = profile_image_x;
+				img_y = profile_image_y;
+			}
+			else {
+				ctx.drawImage(fish_image_right, friend.px, friend.py);
+				img_x = fish_image_right.width - profile_image_x - image_size;
+				img_y = fish_image_right.height - profile_image_y - image_size;
+			}
+			ctx.drawImage(friend.bitmap, friend.px + img_x, friend.py + img_y);
 		});
 	}
 
